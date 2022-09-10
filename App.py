@@ -1,3 +1,4 @@
+import math
 from openpyxl import load_workbook
 from pytube import YouTube
 from pydub import AudioSegment
@@ -61,11 +62,26 @@ starting_song = ending_song
 
 export = starting_song
 
+timestamps = []
+timestamps.append(["0:00", "Intro"])
+
 print("\nCreating Playlist with following order:")
 
 for x in playlist:
 
-    print(x[0].split("/")[1])
+    mp4_file_name = x[0].split("/")[1]
+    print(mp4_file_name)
+
+    timestamp_minute = str(math.floor(int(export.duration_seconds) / 60))
+    timestamp_second = int(export.duration_seconds) % 60
+    if(timestamp_second < 10):
+        timestamp_second = "0" + str(timestamp_second)
+    else:
+        timestamp_second = str(timestamp_second)
+
+    timestamp = ":".join([timestamp_minute, timestamp_second])
+
+    timestamps.append([ timestamp , mp4_file_name.rsplit(".", 1)[0] ])
 
     start = x[1] - 10
     end = x[2] + 2
@@ -73,14 +89,36 @@ for x in playlist:
 
     export = export + song
 
+timestamp_minute = str(math.floor(int(export.duration_seconds) / 60))
+timestamp_second = int(export.duration_seconds) % 60
+if(timestamp_second < 10):
+    timestamp_second = "0" + str(timestamp_second)
+else:
+    timestamp_second = str(timestamp_second)
+
+timestamp = ":".join([timestamp_minute, timestamp_second])
+
+timestamps.append([timestamp, "Outro"])
+
 export = export + ending_song
 
 print("\nExporting file...", end=' ')
 
-file_name = "".join([str(datetime.now().strftime("%Y-%m-%d %H_%M_%S"))]) + ".mp3"
+file_name = "".join([str(datetime.now().strftime("%Y-%m-%d_%H_%M_%S"))]) + ".mp3"
 
-export.export("export/" + file_name , format="mp3")
+#export.export("export/" + file_name , format="mp3")
 
 print("Done!")
 
 print(f"\nFile {file_name} is created!")
+
+print("Creating Textfile...")
+
+text = ""
+
+for x in timestamps:
+    text = text + x[0] + " " + x[1] + "\n"
+
+print(text)
+
+print(f"ffmpeg -loop 1 -framerate 1 -i image.jpg -i {file_name} -map 0:v -map 1:a -r 10 -vf \"scale='iw-mod(iw,2)':'ih-mod(ih,2)',format=yuv420p\" -movflags +faststart -shortest -fflags +shortest -max_interleave_delta 100M {file_name}.mp4")
