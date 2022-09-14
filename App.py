@@ -17,7 +17,7 @@ print("Welcome to the RDG Generator!")
 print("\nLoading Excel...", end=' ')
 
 wb = load_workbook(filename="songlist.xlsx", read_only=True)
-sheet = wb["Songlist"]
+sheet = wb["Exportlist"]
 already_downloaded = os.listdir("raw")
 
 print("Done!")
@@ -63,7 +63,7 @@ starting_song = ending_song
 export = starting_song
 
 timestamps = []
-timestamps.append(["0:00", "Intro"])
+timestamps.append(["00:00:00", "Intro"])
 
 print("\nCreating Playlist with following order:")
 
@@ -72,14 +72,24 @@ for x in playlist:
     mp4_file_name = x[0].split("/")[1]
     print(mp4_file_name)
 
+    
     timestamp_minute = str(math.floor(int(export.duration_seconds) / 60))
+    timestamp_hour = str(math.floor(int(timestamp_minute) / 60))
     timestamp_second = int(export.duration_seconds) % 60
+    if(int(timestamp_minute) < 10):
+        timestamp_minute = "0" + timestamp_minute
     if(timestamp_second < 10):
         timestamp_second = "0" + str(timestamp_second)
     else:
         timestamp_second = str(timestamp_second)
+    if(int(timestamp_hour) > 0):
+        timestamp_minute = str(int(timestamp_minute) - (60 * int(timestamp_hour)))
+        if(int(timestamp_minute) < 10):
+            timestamp_minute = "0" + timestamp_minute
+    if(int(timestamp_hour) < 10):
+        timestamp_hour = "0" + timestamp_hour
 
-    timestamp = ":".join([timestamp_minute, timestamp_second])
+    timestamp = ":".join([timestamp_hour, timestamp_minute, timestamp_second])
 
     timestamps.append([ timestamp , mp4_file_name.rsplit(".", 1)[0] ])
 
@@ -90,13 +100,22 @@ for x in playlist:
     export = export + song
 
 timestamp_minute = str(math.floor(int(export.duration_seconds) / 60))
+timestamp_hour = str(math.floor(int(timestamp_minute) / 60))
 timestamp_second = int(export.duration_seconds) % 60
+if(int(timestamp_minute) < 10):
+    timestamp_minute = "0" + timestamp_minute
 if(timestamp_second < 10):
     timestamp_second = "0" + str(timestamp_second)
 else:
     timestamp_second = str(timestamp_second)
+if(int(timestamp_hour) > 0):
+    timestamp_minute = str(int(timestamp_minute) - (60 * int(timestamp_hour)))
+    if(int(timestamp_minute) < 10):
+        timestamp_minute = "0" + timestamp_minute
+if(int(timestamp_hour) < 10):
+    timestamp_hour = "0" + timestamp_hour
 
-timestamp = ":".join([timestamp_minute, timestamp_second])
+timestamp = ":".join([timestamp_hour, timestamp_minute, timestamp_second])
 
 timestamps.append([timestamp, "Outro"])
 
@@ -106,13 +125,13 @@ print("\nExporting file...", end=' ')
 
 file_name = "".join([str(datetime.now().strftime("%Y-%m-%d_%H_%M_%S"))]) + ".mp3"
 
-#export.export("export/" + file_name , format="mp3")
+export.export("export/" + file_name , format="mp3")
 
 print("Done!")
 
 print(f"\nFile {file_name} is created!")
 
-print("Creating Textfile...")
+print("Generating Timestamp List...\n")
 
 text = ""
 
