@@ -62,8 +62,10 @@ starting_song = ending_song
 
 export = starting_song
 
+song_counter = 1
+
 timestamps = []
-timestamps.append(["00:00:00", "Intro"])
+timestamps.append(["00:00:00", str(song_counter),  "Intro"])
 
 print("\nCreating Playlist with following order:")
 
@@ -91,7 +93,9 @@ for x in playlist:
 
     timestamp = ":".join([timestamp_hour, timestamp_minute, timestamp_second])
 
-    timestamps.append([ timestamp , mp4_file_name.rsplit(".", 1)[0] ])
+    song_counter += 1
+
+    timestamps.append([ timestamp, str(song_counter), mp4_file_name.rsplit(".", 1)[0] ])
 
     start = x[1] - 10
     end = x[2] + 2
@@ -117,7 +121,9 @@ if(int(timestamp_hour) < 10):
 
 timestamp = ":".join([timestamp_hour, timestamp_minute, timestamp_second])
 
-timestamps.append([timestamp, "Outro"])
+song_counter += 1
+
+timestamps.append([timestamp, str(song_counter), "Outro"])
 
 export = export + ending_song
 
@@ -136,7 +142,7 @@ print("Generating Timestamp List...\n")
 text = ""
 
 for x in timestamps:
-    text = text + x[0] + " " + x[1] + "\n"
+    text = text + x[0] + " " + x[1] + " " + x[2] + "\n"
 
 print(text)
 
